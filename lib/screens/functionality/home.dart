@@ -23,24 +23,6 @@ class _Home extends State<Home> {
     });
   }
 
-  Widget getWidget() {
-    if(menuChoice == 1) {
-      return Map(menuChoice, callback);
-    }
-    else if(menuChoice == 2) {
-      return List(menuChoice, callback);
-    }
-    else if(menuChoice == 3) {
-      return Create(menuChoice, callback);
-    }
-    else if(menuChoice == 4) {
-      return Social(menuChoice, callback);
-    }
-    else {
-      return Menu(menuChoice, callback);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +41,7 @@ class _Home extends State<Home> {
           ),
         ],
       ),
-      body: getWidget(),
+      body: Menu(),
     );
   }
 }

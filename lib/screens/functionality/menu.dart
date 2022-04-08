@@ -1,31 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 
+import 'package:note_complete/screens/functionality/notification/map.dart';
+import 'package:note_complete/screens/functionality/notification/list.dart';
+import 'package:note_complete/screens/functionality/notification/create.dart';
+import 'package:note_complete/screens/functionality/social/social.dart';
+
 class Menu extends StatefulWidget {
-  int menuChoice;
-  Function(int) callback;
-
-  Menu(this.menuChoice, this.callback);
-
   @override
   _Menu createState() => _Menu();
 }
 
 class _Menu extends State<Menu> {
   void pressedMap() {
-    widget.callback(1);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Map()),
+    );
   }
 
   void pressedList() {
-    widget.callback(2);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => List()),
+    );
   }
 
   void pressedCreate() {
-    widget.callback(3);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Create()),
+    );
   }
 
   void pressedSocial() {
-    widget.callback(4);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Social()),
+    );
   }
 
   @override
