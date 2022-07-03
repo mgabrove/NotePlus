@@ -16,7 +16,7 @@ class Map extends StatefulWidget {
 
 class _Map extends State<Map>{
 
-  LatLng _currentPosition = LatLng(0, 0);
+  Color customRed = Color.fromRGBO(238, 51, 48, 1);
 
   Completer<GoogleMapController> _controller = Completer();
   var mapController;
@@ -29,24 +29,31 @@ class _Map extends State<Map>{
     moveCameraToUserLocation();
   }
 
-  moveCameraToUserLocation() async {
-    Geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest, forceAndroidLocationManager: true)
-        .then((Position position) {
-      setState(() {
-        _currentPosition = LatLng(position.latitude, position.longitude);
-        mapController.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(
-              target: _currentPosition,
-              zoom: 10,
-            ),
-          ),
-        );
-      });
-    }).catchError((e) {
-      print(e);
+  late LatLng currentPostion;
+
+  LatLng currentPosition() {
+    return currentPostion;
+  }
+
+  _getUserLocation() async {
+    var position = await Geolocator
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+    setState(() {
+      currentPostion = LatLng(position.latitude, position.longitude);
     });
+  }
+
+  void moveCameraToUserLocation() async {
+    await _getUserLocation();
+    mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: currentPosition(),
+          zoom: 10,
+        ),
+      ),
+    );
   }
 
   @override
@@ -54,13 +61,24 @@ class _Map extends State<Map>{
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Map Notes'),
-          backgroundColor: Colors.red,
+          title: Text("Note Complete - Map"),
+          backgroundColor: customRed,
+          elevation: 0.0,
+          actions: <Widget>[
+            Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: GestureDetector(
+                  child: Icon(
+                    Icons.favorite,
+                  ),
+                )
+            ),
+          ],
         ),
         body: GoogleMap(
           onMapCreated: _onMapCreated,
           initialCameraPosition: CameraPosition(
-            target: _currentPosition,
+            target: LatLng(0,0),
             zoom: 0.0,
           ),
         ),

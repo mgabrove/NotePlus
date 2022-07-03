@@ -8,6 +8,8 @@ class Social extends StatefulWidget {
 
 class _Social extends State<Social> {
 
+  Color customRed = Color.fromRGBO(238, 51, 48, 1);
+
   pressedBack(){
     Navigator.pop(context);
   }
@@ -17,8 +19,19 @@ class _Social extends State<Social> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Social'),
-          backgroundColor: Colors.red,
+          title: Text("Note Complete - Social"),
+          backgroundColor: customRed,
+          elevation: 0.0,
+          actions: <Widget>[
+            Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: GestureDetector(
+                  child: Icon(
+                    Icons.favorite,
+                  ),
+                )
+            ),
+          ],
         ),
         body: OutlinedButton(
           child: Text("SOCIAL"),

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "249351615599",
+    "project_id": "notecomplete-4f224",
+    "storage_bucket": "notecomplete-4f224.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:249351615599:android:abb8ec7a61aa4c2a9fc99a",
+        "android_client_info": {
+          "package_name": "com.goat_tech.note_complete"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "249351615599-ca0au5ee6nrin4olcgu4q5n1lg736n2p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUXdD2js8JVdKNVDz74tBUKTqlIf5eeQw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "249351615599-ca0au5ee6nrin4olcgu4q5n1lg736n2p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

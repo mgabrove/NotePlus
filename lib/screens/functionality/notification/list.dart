@@ -8,6 +8,8 @@ class List extends StatefulWidget {
 
 class _List extends State<List> {
 
+  Color customRed = Color.fromRGBO(238, 51, 48, 1);
+
   pressedBack(){
     Navigator.pop(context);
   }
@@ -17,8 +19,19 @@ class _List extends State<List> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('List Notes'),
-          backgroundColor: Colors.red,
+          title: Text("Note Complete - List"),
+          backgroundColor: customRed,
+          elevation: 0.0,
+          actions: <Widget>[
+            Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: GestureDetector(
+                  child: Icon(
+                    Icons.favorite,
+                  ),
+                )
+            ),
+          ],
         ),
         body: OutlinedButton(
           child: Text("LIST"),
