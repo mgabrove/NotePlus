@@ -42,14 +42,17 @@ class _Create extends State<Create> {
   }
 
   void createNote({required String note}) async{
-    final docUser = FirebaseFirestore.instance.collection('notes').doc('my-id');
+    final docUser = FirebaseFirestore.instance.collection('notes').doc();
 
     await _getUserLocation();
 
     final json = {
+      'id': docUser.id,
       'note': note,
       'long': currentPostion.longitude,
       'lat': currentPostion.latitude,
+      'group_id': '23',
+
     };
 
     await docUser.set(json);
