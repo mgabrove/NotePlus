@@ -62,7 +62,7 @@ class _Map extends State<Map>{
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: currentPosition(),
-          zoom: 15,
+          zoom: 18,
         ),
       ),
     );

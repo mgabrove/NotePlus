@@ -4,7 +4,6 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:developer' as developer;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'group.dart';
 
 class Create extends StatefulWidget {
   @override
@@ -50,7 +49,7 @@ class _Create extends State<Create> {
       'note': note,
       'long': currentPostion.longitude,
       'lat': currentPostion.latitude,
-      //'group_id': docGroup,
+      'groupId': _groupSelected != null ? _groupSelected : "personal",
     };
 
     await docUser.set(json);
