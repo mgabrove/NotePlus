@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-
 import 'package:geolocator/geolocator.dart';
-
 import 'dart:developer' as developer;
-
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'group.dart';
 
 class Create extends StatefulWidget {
   @override
@@ -43,6 +41,7 @@ class _Create extends State<Create> {
 
   void createNote({required String note}) async{
     final docUser = FirebaseFirestore.instance.collection('notes').doc();
+    //final docGroup = selectGroup();
 
     await _getUserLocation();
 
@@ -51,12 +50,13 @@ class _Create extends State<Create> {
       'note': note,
       'long': currentPostion.longitude,
       'lat': currentPostion.latitude,
-      'group_id': '23',
-
+      //'group_id': docGroup,
     };
 
     await docUser.set(json);
   }
+
+  String? _groupSelected;
 
   final controller = TextEditingController();
   @override
@@ -84,6 +84,65 @@ class _Create extends State<Create> {
               controller: controller,
               keyboardType: TextInputType.multiline,
               maxLines: 15,
+            ),
+            Row(
+              children: <Widget>[
+                Expanded(
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('groups')
+                          .snapshots(),
+                      builder: (context, AsyncSnapshot snapshot) {
+                        if (!snapshot.hasData) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else {
+                          return Container(
+                            child: DropdownButtonFormField<String>(
+                              onChanged: (valueSelectedByUser) {
+                                setState(() {
+                                  _groupSelected = valueSelectedByUser;
+                                });
+                              },
+                              hint: Text('Choose group'),
+                              items: snapshot.data!.docs.map<DropdownMenuItem<String>>((DocumentSnapshot document) {
+                                if(_groupSelected == null && document.get('name') == "personal") {
+                                    _groupSelected = document.get('id');
+                                }
+                                return DropdownMenuItem<String>(
+                                  value: document.get('id'),
+                                  child: new Text(document.get('name')),
+                                );
+                              }).toList(),
+                              value: _groupSelected,
+                            ),
+                          );
+                          //DocumentSnapshot ds = snapshot.data.docs;
+                          final data = snapshot.data!;
+                          var _value;
+                          return DropdownButtonFormField(
+                              style: TextStyle(color: Colors.white70),
+                              value: _value,
+                              items: data
+                                  .map<DropdownMenuItem<String>>(
+                                    (x) => DropdownMenuItem(
+                                      child: Text(x),
+                                      value: '{$x}',
+                                    ),
+                              )
+                                  .toList(),
+
+                              onChanged: (val) => setState(() {
+                                _value = val;
+
+                              }),
+                          );
+                        }
+                      },
+                    )
+                ),
+              ],
             ),
             Row(
                 children: <Widget>[

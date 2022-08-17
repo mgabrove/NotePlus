@@ -11,10 +11,6 @@ class Note{
     required this.long
   });
 
-  getNote() {
-    return note;
-  }
-
   Map<String, dynamic> toJson() => {
     'id': id,
     'note': note,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -20,8 +21,17 @@ class _Map extends State<Map>{
   static const LatLng _center = const LatLng(45.521563, -122.677433);
 
   void _onMapCreated(GoogleMapController controller){
-    readNotes();
     mapController = controller;
+    controller.setMapStyle(([
+      {
+        "featureType": "poi",
+        "stylers": [{ "visibility": "off" }]
+      },
+      {
+        "featureType": "transit",
+        "stylers": [{ "visibility": "off" }]
+      },
+    ]).toString());
     moveCameraToUserLocation();
   }
 
@@ -52,7 +62,7 @@ class _Map extends State<Map>{
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: currentPosition(),
-          zoom: 13,
+          zoom: 15,
         ),
       ),
     );
@@ -61,21 +71,27 @@ class _Map extends State<Map>{
   List<Marker> _markers = <Marker>[];
 
   readNotes() {
+    debugPrint(_groupSelected);
     FirebaseFirestore.instance
         .collection('notes')
+        .where('groupId', isEqualTo: _groupSelected)
         .get()
         .then((QuerySnapshot querySnapshot) {
           querySnapshot.docs.forEach((doc) {
-            _markers.add(Marker(
-              markerId:MarkerId(doc["id"]),
-              position: LatLng(doc["lat"], doc["long"]),
-              icon: BitmapDescriptor.defaultMarker,
-              draggable: false,
-              zIndex: 1,
-            ));
+            setState(() {
+              _markers.add(Marker(
+                markerId: MarkerId(doc["id"]),
+                position: LatLng(doc["lat"], doc["long"]),
+                icon: BitmapDescriptor.defaultMarker,
+                draggable: false,
+                zIndex: 1,
+              ));
+            });
           });
         });
   }
+
+  String? _groupSelected;
 
     @override
     Widget build(BuildContext context) {
@@ -97,14 +113,80 @@ class _Map extends State<Map>{
               ),
             ],
           ),
-          body: GoogleMap(
-            markers: Set<Marker>.of(_markers),
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: LatLng(0,0),
-              zoom: 0.0,
-            ),
-            //markers: Set<Marker>.of(markers.values),
+          body: Container(
+            child: Stack(
+              children: <Widget>[
+                SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: GoogleMap(
+                    mapToolbarEnabled: false,
+                    markers: Set<Marker>.of(_markers),
+                    onMapCreated: _onMapCreated,
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(0,0),
+                      zoom: 0.0,
+                    ),
+                    //markers: Set<Marker>.of(markers.values),
+                  ),
+                ),
+                Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: FloatingActionButton.extended(
+                        onPressed: moveCameraToUserLocation,
+                        label: Text(""),
+                        icon: Icon(Icons.gps_fixed_rounded),
+                      ),
+                    )
+                ),
+                Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(10, 10, 150, 10),
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('groups')
+                            .snapshots(),
+                        builder: (context, AsyncSnapshot snapshot) {
+                          if (!snapshot.hasData) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else {
+                            return Container(
+                              color: Colors.white,
+                              child: DropdownButtonFormField<String>(
+                                onChanged: (valueSelectedByUser) {
+                                  setState(() {
+                                    _markers = <Marker>[];
+                                    _groupSelected = valueSelectedByUser;
+                                    readNotes();
+                                  });
+                                },
+                                hint: Text('Choose group'),
+                                items: snapshot.data!.docs.map<DropdownMenuItem<String>>((DocumentSnapshot document) {
+                                  if(_groupSelected == null && document.get('name') == "personal") {
+                                      _groupSelected = document.get('id');
+                                      _markers = <Marker>[];
+                                      readNotes();
+                                  }
+                                  return DropdownMenuItem<String>(
+                                    value: document.get('id'),
+                                    child: new Text(document.get('name')),
+                                  );
+                                }).toList(),
+                                value: _groupSelected,
+                              ),
+                            );
+                          }
+                        },
+                      )
+                    )
+                ),
+              ]
+            )
           ),
         ),
       );
