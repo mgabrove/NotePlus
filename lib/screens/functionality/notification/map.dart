@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'note.dart';
+import 'package:note_complete/screens/functionality/notification/create.dart';
 
 class Map extends StatefulWidget {
   @override
@@ -12,6 +12,10 @@ class Map extends StatefulWidget {
 }
 
 class _Map extends State<Map>{
+
+  void pressedCreate() {
+    Navigator.pushNamed(context, '/create', arguments: {'group': _groupSelected});
+  }
 
   Color customRed = Color.fromRGBO(238, 51, 48, 1.0);
 
@@ -69,6 +73,7 @@ class _Map extends State<Map>{
   }
 
   List<Marker> _markers = <Marker>[];
+  String _selectedMarker = '';
 
   readNotes() {
     debugPrint(_groupSelected);
@@ -80,6 +85,15 @@ class _Map extends State<Map>{
           querySnapshot.docs.forEach((doc) {
             setState(() {
               _markers.add(Marker(
+                infoWindow: InfoWindow(
+                  title: doc["note"],
+                ),
+                onTap: () {
+                  setState(() {
+                    _selectedMarker = doc["id"];
+                    debugPrint(_selectedMarker);
+                  });
+                },
                 markerId: MarkerId(doc["id"]),
                 position: LatLng(doc["lat"], doc["long"]),
                 icon: BitmapDescriptor.defaultMarker,
@@ -90,6 +104,8 @@ class _Map extends State<Map>{
           });
         });
   }
+
+  final PopupController _popupLayerController = PopupController();
 
   String? _groupSelected;
 
@@ -130,19 +146,36 @@ class _Map extends State<Map>{
                     //markers: Set<Marker>.of(markers.values),
                   ),
                 ),
-                Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: FloatingActionButton.extended(
-                        onPressed: moveCameraToUserLocation,
-                        label: Text(""),
-                        icon: Icon(Icons.gps_fixed_rounded),
-                      ),
-                    )
+                Column(
+                  children: <Widget>[
+                    Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: FloatingActionButton.extended(
+                            heroTag: "btn1",
+                            onPressed: moveCameraToUserLocation,
+                            label: Text(""),
+                            icon: Icon(Icons.gps_fixed_rounded),
+                          ),
+                        )
+                    ),
+                    Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                          child: FloatingActionButton.extended(
+                            heroTag: "btn2",
+                            onPressed: pressedCreate,
+                            label: Text(""),
+                            icon: Icon(Icons.create),
+                          ),
+                        )
+                    ),
+                  ],
                 ),
                 Align(
-                    alignment: Alignment.topRight,
+                    alignment: Alignment.topLeft,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(10, 10, 150, 10),
                       child: StreamBuilder<QuerySnapshot>(

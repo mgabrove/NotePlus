@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-
 import 'package:note_complete/screens/functionality/notification/map.dart';
 import 'package:note_complete/screens/functionality/notification/list.dart';
 import 'package:note_complete/screens/functionality/notification/create.dart';

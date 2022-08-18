@@ -3,7 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:developer' as developer;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
+class Arguments {
+  final String title_bar;
+  final String text_message;
+
+  Arguments(this.title_bar, this.text_message);
+}
 
 class Create extends StatefulWidget {
   @override
@@ -60,6 +66,11 @@ class _Create extends State<Create> {
   final controller = TextEditingController();
   @override
   Widget build(BuildContext context) {
+
+    Map data = {};
+    data = ModalRoute.of(context)!.settings.arguments as Map;
+    _groupSelected = data != null ? data['group'] : null;
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
