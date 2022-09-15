@@ -10,6 +10,7 @@ import 'package:note_complete/screens/functionality/notification/list.dart';
 import 'package:note_complete/screens/functionality/social/social.dart';
 import 'package:note_complete/screens/auth/login.dart';
 import 'package:note_complete/screens/auth/signup.dart';
+import 'package:note_complete/screens/utils.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: Utils.messengerKey,
       initialRoute: '/',
       routes: {
         '/' : (BuildContext context) => Wrapper(),
