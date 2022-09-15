@@ -73,21 +73,22 @@ class _Create extends State<Create> {
 
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: Text("Note Complete - Create"),
-          backgroundColor: customRed,
-          elevation: 0.0,
-          actions: <Widget>[
-            Padding(
-                padding: EdgeInsets.only(right: 20.0),
-                child: GestureDetector(
-                  child: Icon(
-                    Icons.favorite,
-                  ),
-                )
-            ),
-          ],
-        ),
+          appBar: AppBar(
+            title: Text("Note Complete"),
+            backgroundColor: Color.fromRGBO(238, 51, 48, 1),
+            elevation: 0.0,
+            actions: <Widget>[
+              Padding(
+                  padding: EdgeInsets.only(right: 20.0),
+                  child: GestureDetector(
+                    onTap: pressedBack,
+                    child: Icon(
+                      Icons.arrow_back,
+                    ),
+                  )
+              ),
+            ],
+          ),
         body: ListView(
           children: <Widget>[
             TextField(
@@ -128,26 +129,6 @@ class _Create extends State<Create> {
                               value: _groupSelected,
                             ),
                           );
-                          //DocumentSnapshot ds = snapshot.data.docs;
-                          final data = snapshot.data!;
-                          var _value;
-                          return DropdownButtonFormField(
-                              style: TextStyle(color: Colors.white70),
-                              value: _value,
-                              items: data
-                                  .map<DropdownMenuItem<String>>(
-                                    (x) => DropdownMenuItem(
-                                      child: Text(x),
-                                      value: '{$x}',
-                                    ),
-                              )
-                                  .toList(),
-
-                              onChanged: (val) => setState(() {
-                                _value = val;
-
-                              }),
-                          );
                         }
                       },
                     )
@@ -174,12 +155,5 @@ class _Create extends State<Create> {
         )
       ),
     );
-    /*return Container(
-      color: Color.fromRGBO(236, 244, 248, 1),
-      child: OutlinedButton(
-        child: Text("CREATE"),
-        onPressed: pressedBack,
-      ),
-    );*/
   }
 }

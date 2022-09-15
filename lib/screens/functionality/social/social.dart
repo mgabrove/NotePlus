@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
+import 'package:note_complete/screens/header.dart';
 
 class Social extends StatefulWidget {
   @override
@@ -19,15 +19,16 @@ class _Social extends State<Social> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text("Note Complete - Social"),
-          backgroundColor: customRed,
+          title: Text("Note Complete"),
+          backgroundColor: Color.fromRGBO(238, 51, 48, 1),
           elevation: 0.0,
           actions: <Widget>[
             Padding(
                 padding: EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
+                  onTap: pressedBack,
                   child: Icon(
-                    Icons.favorite,
+                    Icons.arrow_back,
                   ),
                 )
             ),
@@ -39,12 +40,5 @@ class _Social extends State<Social> {
         ),
       ),
     );
-    /*return Container(
-        color: Color.fromRGBO(236, 244, 248, 1),
-        child: OutlinedButton(
-          child: Text("SOCIAL"),
-          onPressed: pressedBack,
-        ),
-    );*/
   }
 }

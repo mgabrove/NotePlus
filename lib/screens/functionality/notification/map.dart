@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:note_complete/screens/functionality/notification/create.dart';
+import 'package:note_complete/screens/header.dart';
 
 class Map extends StatefulWidget {
   @override
@@ -89,6 +89,7 @@ class _Map extends State<Map>{
                   title: doc["note"],
                 ),
                 onTap: () {
+
                   setState(() {
                     _selectedMarker = doc["id"];
                     debugPrint(_selectedMarker);
@@ -105,7 +106,9 @@ class _Map extends State<Map>{
         });
   }
 
-  final PopupController _popupLayerController = PopupController();
+  pressedBack(){
+    Navigator.pop(context);
+  }
 
   String? _groupSelected;
 
@@ -115,15 +118,16 @@ class _Map extends State<Map>{
       return MaterialApp(
         home: Scaffold(
           appBar: AppBar(
-            title: Text("Note Complete - Map"),
-            backgroundColor: customRed,
+            title: Text("Note Complete"),
+            backgroundColor: Color.fromRGBO(238, 51, 48, 1),
             elevation: 0.0,
             actions: <Widget>[
               Padding(
                   padding: EdgeInsets.only(right: 20.0),
                   child: GestureDetector(
+                    onTap: pressedBack,
                     child: Icon(
-                      Icons.favorite,
+                      Icons.arrow_back,
                     ),
                   )
               ),
@@ -223,12 +227,5 @@ class _Map extends State<Map>{
           ),
         ),
       );
-      /* return Container(
-      color: Color.fromRGBO(236, 244, 248, 1),
-      child: OutlinedButton(
-        child: Text("MAP"),
-        onPressed: pressedBack,
-      ),
-    );*/
     }
 }

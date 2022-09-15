@@ -19,15 +19,16 @@ class _List extends State<List> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text("Note Complete - List"),
-          backgroundColor: customRed,
+          title: Text("Note Complete"),
+          backgroundColor: Color.fromRGBO(238, 51, 48, 1),
           elevation: 0.0,
           actions: <Widget>[
             Padding(
                 padding: EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
+                  onTap: pressedBack,
                   child: Icon(
-                    Icons.favorite,
+                    Icons.arrow_back,
                   ),
                 )
             ),
