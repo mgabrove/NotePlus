@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:note_complete/screens/utils.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Signup extends StatefulWidget {
   @override
@@ -30,6 +31,25 @@ class _Signup extends State<Signup> {
     Navigator.pushReplacementNamed(context, "/login");
   }
 
+  void onSignUp() async{
+    final docUser = FirebaseFirestore.instance.collection('users').doc();
+    final docPersonal = FirebaseFirestore.instance.collection('groups').doc();
+
+    final jsonUser = {
+      'id': docUser.id,
+      'userid': FirebaseAuth.instance.currentUser?.uid,
+    };
+    final jsonPersonal = {
+      'id': docPersonal.id,
+      'name': 'personal',
+      'users': [FirebaseAuth.instance.currentUser?.uid],
+      'admins': [FirebaseAuth.instance.currentUser?.uid],
+    };
+
+    await docUser.set(jsonUser);
+    await docPersonal.set(jsonPersonal);
+  }
+
   Future signUp() async {
     final isValid = formKey.currentState!.validate();
     if(!isValid) return;
@@ -40,6 +60,7 @@ class _Signup extends State<Signup> {
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
         );
+        onSignUp();
         Navigator.pushReplacementNamed(context, "/");
       }
     } on FirebaseAuthException catch (e) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:developer' as developer;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Arguments {
   final String title_bar;
@@ -102,6 +103,7 @@ class _Create extends State<Create> {
                     child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
                           .collection('groups')
+                          .where('users', arrayContains: FirebaseAuth.instance.currentUser?.uid)
                           .snapshots(),
                       builder: (context, AsyncSnapshot snapshot) {
                         if (!snapshot.hasData) {

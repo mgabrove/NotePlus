@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class List extends StatefulWidget {
   @override
@@ -34,18 +35,31 @@ class _List extends State<List> {
             ),
           ],
         ),
-        body: OutlinedButton(
-          child: Text("LIST"),
-          onPressed: pressedBack,
-        ),
+        body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('groups')
+              .where('users', arrayContains: FirebaseAuth.instance.currentUser?.uid)
+              .snapshots(),
+          builder: (context, AsyncSnapshot snapshot) {
+            debugPrint(FirebaseAuth.instance.currentUser?.uid);
+            if (!snapshot.hasData) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return ListView(
+                children: snapshot.data!.docs.map<Widget>((documents) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.width,
+                    child: Button(documents['name']),
+                  );
+                }).toList(),
+              );
+            }
+          },
+        )
       ),
     );
-    /*return Container(
-      color: Color.fromRGBO(236, 244, 248, 1),
-      child: OutlinedButton(
-        child: Text("LIST"),
-        onPressed: pressedBack,
-      ),
-    );*/
   }
 }

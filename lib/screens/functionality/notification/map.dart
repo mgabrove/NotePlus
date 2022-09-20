@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:note_complete/screens/header.dart';
 
 class Map extends StatefulWidget {
@@ -76,7 +77,6 @@ class _Map extends State<Map>{
   String _selectedMarker = '';
 
   readNotes() {
-    debugPrint(_groupSelected);
     FirebaseFirestore.instance
         .collection('notes')
         .where('groupId', isEqualTo: _groupSelected)
@@ -185,8 +185,10 @@ class _Map extends State<Map>{
                       child: StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
                             .collection('groups')
+                            .where('users', arrayContains: FirebaseAuth.instance.currentUser?.uid)
                             .snapshots(),
                         builder: (context, AsyncSnapshot snapshot) {
+                          debugPrint(FirebaseAuth.instance.currentUser?.uid);
                           if (!snapshot.hasData) {
                             return Center(
                               child: CircularProgressIndicator(),
