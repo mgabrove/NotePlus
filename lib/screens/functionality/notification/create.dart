@@ -151,12 +151,6 @@ class _Create extends State<Create> {
                         onPressed: pressedCreate,
                       ),
                   ),
-                  Expanded(
-                      child: OutlinedButton(
-                        child: Text("Return"),
-                        onPressed: pressedBack,
-                      ),
-                  )
                 ]
             ),
           ],
