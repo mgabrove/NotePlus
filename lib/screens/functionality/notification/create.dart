@@ -26,7 +26,7 @@ class _Create extends State<Create> {
   }
   pressedCreate(){
     final note = controller.text;
-    createNote(note: note);
+    createNote();
     Navigator.pop(context);
   }
 
@@ -45,26 +45,25 @@ class _Create extends State<Create> {
     });
   }
 
-  void createNote({required String note}) async{
+  void createNote() async{
     final docUser = FirebaseFirestore.instance.collection('notes').doc();
-    //final docGroup = selectGroup();
-
     await _getUserLocation();
-
     final json = {
       'id': docUser.id,
-      'note': note,
+      'title': controllerTitle.value,
+      'note': controller.value,
       'long': currentPostion.longitude,
       'lat': currentPostion.latitude,
       'groupId': _groupSelected != null ? _groupSelected : "personal",
     };
-
     await docUser.set(json);
   }
 
   String? _groupSelected;
 
+  final controllerTitle = TextEditingController();
   final controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
 
@@ -93,6 +92,13 @@ class _Create extends State<Create> {
         body: ListView(
           children: <Widget>[
             TextField(
+              decoration: InputDecoration(labelText: "Title"),
+              controller: controllerTitle,
+              keyboardType: TextInputType.multiline,
+              maxLines: 1,
+            ),
+            TextField(
+              decoration: InputDecoration(labelText: "Note"),
               controller: controller,
               keyboardType: TextInputType.multiline,
               maxLines: 15,
