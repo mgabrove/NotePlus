@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:note_complete/screens/customdialog.dart';
+import 'package:note_complete/screens/customform.dart';
 
 class Social extends StatefulWidget {
   @override
@@ -13,6 +14,7 @@ class Social extends StatefulWidget {
 }
 
 class _Social extends State<Social> {
+  final groupController = TextEditingController();
 
   Color customRed = Color.fromRGBO(238, 51, 48, 1);
 
@@ -20,11 +22,21 @@ class _Social extends State<Social> {
     Navigator.pop(context);
   }
 
-  pressedNewGroup(){
+  pressedNewGroup(String pressedValue) async{
+    final docGrp = FirebaseFirestore.instance.collection('groups').doc();
+    final json = {
+      'id': docGrp.id,
+      'admins': [FirebaseAuth.instance.currentUser?.uid],
+      'users': [FirebaseAuth.instance.currentUser?.uid],
+      'name': pressedValue,
+    };
+    await docGrp.set(json);
+  }
+  pressedLeaveGroup(){
 
   }
-  pressedNewMember(){
-
+  pressedNewMember(String pressedValue) async{
+    final docNew = FirebaseFirestore.instance.collection('groups').doc(_groupSelected).update({'users': FieldValue.arrayUnion([pressedValue])});
   }
   pressedRemoveMember(documents){
 
@@ -99,7 +111,18 @@ class _Social extends State<Social> {
                           Expanded(
                             child: OutlinedButton(
                               child: Text("New Group"),
-                              onPressed: pressedNewGroup,
+                              onPressed: () async {
+                                var pressedButton = await showDialog<
+                                    String>(
+                                    context: context,
+                                    builder: (
+                                        BuildContext context) {
+                                      return CustomForm(
+                                          "Create Group", "Yes", "No", "group name");
+                                    }
+                                );
+                                if (pressedButton != '') pressedNewGroup(pressedButton!);
+                              },
                             ),
                           ),
                         ]
@@ -169,7 +192,6 @@ class _Social extends State<Social> {
                                     scrollDirection: Axis.vertical,
                                     shrinkWrap: true,
                                     children: documents.get('users').map<Row>((doc) {
-                                      debugPrint(doc);
                                 return Row(
                                     children: <Widget>[
                                       Expanded(
@@ -183,7 +205,9 @@ class _Social extends State<Social> {
                                                   padding: EdgeInsets
                                                       .fromLTRB(10, 15, 15,
                                                       1),
-                                                  child: Text(doc.toString()),
+                                                  child: Text(
+                                                    doc
+                                                  ),
                                                 )
                                             ),
                                           ],
@@ -195,12 +219,23 @@ class _Social extends State<Social> {
                                           children: <Widget>[
                                             OutlinedButton(
                                               child: Icon(CupertinoIcons.chevron_compact_up),
-                                              onPressed: () =>
-                                                  pressedPromoteAdmin(
-                                                      documents),
+                                              onPressed: () async {
+                                                var pressedButton = await showDialog<
+                                                    bool>(
+                                                    context: context,
+                                                    builder: (
+                                                        BuildContext context) {
+                                                      return CustomDialog(
+                                                          "Are you sure\nyou want to promote this user?",
+                                                          "Yes", "No");
+                                                    }
+                                                );
+                                                if (pressedButton ==
+                                                    true) pressedPromoteAdmin(
+                                                    documents);
+                                              },
                                             ),
                                             Visibility(
-                                              //visible: documents.contains(FirebaseAuth.instance.currentUser?.uid) ? true : false,
                                               child: OutlinedButton(
                                                 child: Icon(Icons.remove,
                                                   color: Colors.red,),
@@ -238,7 +273,38 @@ class _Social extends State<Social> {
                           Expanded(
                             child: OutlinedButton(
                               child: Text("Add Group Member"),
-                              onPressed: pressedNewMember,
+                              onPressed: () async {
+                                var pressedButton = await showDialog<
+                                    String>(
+                                    context: context,
+                                    builder: (
+                                        BuildContext context) {
+                                      return CustomForm(
+                                          "Add User",
+                                          "Yes", "No", "email");
+                                    }
+                                );
+                                if (pressedButton != '') pressedLeaveGroup();
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: OutlinedButton(
+                              child: Text("Leave Group"),
+                              onPressed: () async {
+                                var pressedButton = await showDialog<
+                                    bool>(
+                                    context: context,
+                                    builder: (
+                                        BuildContext context) {
+                                      return CustomDialog(
+                                          "Are you sure\nyou want to leave this group?",
+                                          "Yes", "No");
+                                    }
+                                );
+                                if (pressedButton ==
+                                    true) pressedLeaveGroup();
+                              },
                             ),
                           ),
                         ]

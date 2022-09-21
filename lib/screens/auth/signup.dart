@@ -38,6 +38,7 @@ class _Signup extends State<Signup> {
     final jsonUser = {
       'id': docUser.id,
       'userid': FirebaseAuth.instance.currentUser?.uid,
+      'email': emailController.text.trim(),
     };
     final jsonPersonal = {
       'id': docPersonal.id,
