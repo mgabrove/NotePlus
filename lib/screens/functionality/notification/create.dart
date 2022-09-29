@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:developer' as developer;
+import 'dart:math';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class Arguments {
   final String title_bar;
@@ -29,6 +31,37 @@ class _Create extends State<Create> {
     createNote();
     Navigator.pop(context);
   }
+
+  //
+  SpeechToText speech = SpeechToText();
+  String textString = "Press The Button";
+  bool isListen = false;
+  double confidence = 1.0;
+
+  void listen() async {
+    if (!isListen) {
+      bool avail = await speech.initialize();
+      if (avail) {
+        String beforeCursorPositionAtTEC = controller.selection.textBefore(controller.text);
+        String afterCursorPositionAtTEC = controller.selection.textAfter(controller.text);
+        setState(() {
+          isListen = true;
+        });
+        speech.listen(onResult: (value) {
+          setState(() {
+            textString = value.recognizedWords;
+            controller.text = beforeCursorPositionAtTEC + textString + afterCursorPositionAtTEC;
+          });
+        });
+      }
+    } else {
+      setState(() {
+        isListen = false;
+      });
+      speech.stop();
+    }
+  }
+  //
 
   late LatLng currentPostion;
 
@@ -97,11 +130,29 @@ class _Create extends State<Create> {
               keyboardType: TextInputType.multiline,
               maxLines: 1,
             ),
-            TextField(
-              decoration: InputDecoration(labelText: "Note"),
-              controller: controller,
-              keyboardType: TextInputType.multiline,
-              maxLines: 15,
+            Stack(
+              alignment: Alignment.bottomRight,
+              children: <Widget>[
+                TextField(
+                  decoration: InputDecoration(labelText: "Note"),
+                  controller: controller,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: 15,
+                ),
+                Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: FloatingActionButton.extended(
+                        backgroundColor: Color.fromRGBO(238, 51, 48, 1),
+                        heroTag: "btn1",
+                        onPressed: listen,
+                        label: Text(""),
+                        icon: Icon(isListen ? Icons.mic : Icons.mic_none),
+                      ),
+                    )
+                ),
+              ],
             ),
             Row(
               children: <Widget>[

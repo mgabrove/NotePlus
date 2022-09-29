@@ -157,6 +157,7 @@ class _Map extends State<Map>{
                         child: Padding(
                           padding: EdgeInsets.all(10.0),
                           child: FloatingActionButton.extended(
+                            backgroundColor: Color.fromRGBO(238, 51, 48, 1),
                             heroTag: "btn1",
                             onPressed: moveCameraToUserLocation,
                             label: Text(""),
@@ -169,6 +170,7 @@ class _Map extends State<Map>{
                         child: Padding(
                           padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
                           child: FloatingActionButton.extended(
+                            backgroundColor: Color.fromRGBO(238, 51, 48, 1),
                             heroTag: "btn2",
                             onPressed: pressedCreate,
                             label: Text(""),

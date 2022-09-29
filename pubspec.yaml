@@ -36,6 +36,7 @@ dependencies:
   cloud_firestore: ^3.2.1
   firebase_auth: ^3.8.0
   email_validator: ^2.1.17
+  speech_to_text: ^6.0.0
 
 dev_dependencies:
   flutter_test:
