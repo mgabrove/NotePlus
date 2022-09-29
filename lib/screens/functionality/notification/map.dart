@@ -73,8 +73,18 @@ class _Map extends State<Map>{
     );
   }
 
+  moveMarker() {
+    setState(() {
+      moveMode = true;
+    });
+    readNotes();
+  }
+
+  final controller = TextEditingController();
+
   List<Marker> _markers = <Marker>[];
   String _selectedMarker = '';
+  bool moveMode = false;
 
   readNotes() {
     FirebaseFirestore.instance
@@ -85,19 +95,91 @@ class _Map extends State<Map>{
           querySnapshot.docs.forEach((doc) {
             setState(() {
               _markers.add(Marker(
-                infoWindow: InfoWindow(
-                  title: doc["note"],
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                  _selectedMarker == doc["id"] ? BitmapDescriptor.hueBlue : BitmapDescriptor.hueRed,
                 ),
                 onTap: () {
-
                   setState(() {
                     _selectedMarker = doc["id"];
-                    debugPrint(_selectedMarker);
                   });
+                  showModalBottomSheet<void>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Container(
+                        height: 260,
+                        child: StreamBuilder(
+                          stream: FirebaseFirestore.instance
+                              .collection('notes')
+                              .doc(_selectedMarker)
+                              .snapshots(),
+                          builder: (context, AsyncSnapshot snapshot) {
+                            var document = snapshot.data;
+                            if (!snapshot.hasData) {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            } else {
+                              controller.text = document["note"];
+                              return Container(
+                                color: Colors.white,
+                                alignment: Alignment.topLeft,
+                                child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(document["title"], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                                      Text("lat: " + document["lat"].toString() + ", long: " + document["long"].toString(), style: TextStyle(fontSize: 10),),
+                                      OutlinedButton(onPressed: moveMarker, child: Text("Move note", style: TextStyle(color: Colors.black),)),
+                                      SizedBox(height: 5),
+                                      TextField(
+                                        decoration: InputDecoration.collapsed(
+                                          hintText: "",
+                                          border: InputBorder.none,
+                                        ),
+                                        controller: controller,
+                                        enabled: false,
+                                        maxLines: 5,
+                                      ),
+                                      SizedBox(height: 5),
+                                      Row(
+                                          children: <Widget>[
+                                            Expanded(
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  primary: Colors.red,
+                                                ),
+                                                child: const Text('Edit'),
+                                                onPressed: () => Navigator.pop(context),
+                                              ),
+                                            ),
+                                            SizedBox(width: 10,),
+                                            Expanded(
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  primary: Colors.red,
+                                                ),
+                                                child: const Text('Collapse'),
+                                                onPressed: () => Navigator.pop(context),
+                                              ),
+                                            ),
+                                          ]
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              );
+                            }
+                          },
+                        )
+                      );
+                    },
+                  );
                 },
                 markerId: MarkerId(doc["id"]),
                 position: LatLng(doc["lat"], doc["long"]),
-                icon: BitmapDescriptor.defaultMarker,
+                //icon: BitmapDescriptor.defaultMarker,
                 draggable: false,
                 zIndex: 1,
               ));
@@ -190,7 +272,6 @@ class _Map extends State<Map>{
                             .where('users', arrayContains: FirebaseAuth.instance.currentUser?.uid)
                             .snapshots(),
                         builder: (context, AsyncSnapshot snapshot) {
-                          debugPrint(FirebaseAuth.instance.currentUser?.uid);
                           if (!snapshot.hasData) {
                             return Center(
                               child: CircularProgressIndicator(),
