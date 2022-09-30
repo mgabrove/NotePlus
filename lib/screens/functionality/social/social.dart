@@ -28,12 +28,18 @@ class _Social extends State<Social> {
       'id': docGrp.id,
       'admins': [FirebaseAuth.instance.currentUser?.uid],
       'users': [FirebaseAuth.instance.currentUser?.uid],
+      'pending': [],
       'name': pressedValue,
     };
     await docGrp.set(json);
   }
-  pressedLeaveGroup(){
-
+  pressedLeaveGroup(documents){
+    var ref = FirebaseFirestore.instance.collection('groups').doc(_groupSelected);
+    ref.update({
+      'users': FieldValue.arrayRemove([documents]),
+      'admins': FieldValue.arrayRemove([documents]),
+      'pending': FieldValue.arrayRemove([documents]),
+    });
   }
   pressedNewMember(String pressedValue) async{
     final docNew = FirebaseFirestore.instance.collection('groups').doc(_groupSelected).update({'users': FieldValue.arrayUnion([pressedValue])});
@@ -462,7 +468,7 @@ class _Social extends State<Social> {
                                           "Yes", "No", "email");
                                     }
                                 );
-                                if (pressedButton != '') pressedLeaveGroup();
+                                if (pressedButton != '') pressedLeaveGroup(docs);
                               },
                             ),
                           ),
