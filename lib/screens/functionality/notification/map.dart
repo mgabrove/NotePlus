@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -14,17 +15,33 @@ class Map extends StatefulWidget {
 }
 
 class _Map extends State<Map>{
-
   void pressedCreate() {
     Navigator.pushNamed(context, '/create', arguments: {'group': _groupSelected});
   }
 
+  var _editMode = false;
+  void pressedEdit() {
+    setState(() {
+      _editMode = true;
+    });
+  }
+  bool isEdit() {
+    return _editMode;
+  }
+  void pressedSave() {
+    print("TU SAM1");
+    print(_editMode);
+
+    setState(() {
+      _editMode = false;
+    });
+  }
+  void pressedCancel(){
+
+  }
+
   Color customRed = Color.fromRGBO(238, 51, 48, 1.0);
-
-  Completer<GoogleMapController> _controller = Completer();
   var mapController;
-
-  static const LatLng _center = const LatLng(45.521563, -122.677433);
 
   void _onMapCreated(GoogleMapController controller){
     mapController = controller;
@@ -91,6 +108,7 @@ class _Map extends State<Map>{
     }
   }
 
+  final controllerTitle = TextEditingController();
   final controller = TextEditingController();
 
   List<Marker> _markers = <Marker>[];
@@ -114,6 +132,7 @@ class _Map extends State<Map>{
                     _selectedMarker = doc["id"];
                   });
                   showModalBottomSheet<void>(
+                    isScrollControlled: true,
                     context: context,
                     builder: (BuildContext context) {
                       return Container(
@@ -130,6 +149,7 @@ class _Map extends State<Map>{
                                 child: CircularProgressIndicator(),
                               );
                             } else {
+                              controllerTitle.text = document["title"];
                               controller.text = document["note"];
                               return Container(
                                 color: Colors.white,
@@ -140,7 +160,16 @@ class _Map extends State<Map>{
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      Text(document["title"], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                                      TextField(
+                                        decoration: InputDecoration.collapsed(
+                                          hintText: "",
+                                          border: InputBorder.none,
+                                        ),
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                                        controller: controllerTitle,
+                                        enabled: _editMode,
+                                        maxLines: 1,
+                                      ),
                                       Text("lat: " + document["lat"].toString() + ", long: " + document["long"].toString(), style: TextStyle(fontSize: 10),),
                                       OutlinedButton(onPressed: () { Navigator.pop(context); moveMarker(); }, child: Text("Move note", style: TextStyle(color: Colors.black),)),
                                       SizedBox(height: 5),
@@ -150,23 +179,38 @@ class _Map extends State<Map>{
                                           border: InputBorder.none,
                                         ),
                                         controller: controller,
-                                        enabled: false,
+                                        enabled: isEdit(),
                                         maxLines: 5,
                                       ),
                                       SizedBox(height: 5),
                                       Row(
                                           children: <Widget>[
-                                            Expanded(
-                                              child: ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  primary: Colors.red,
+                                            Visibility(
+                                              visible: !isEdit(),
+                                              child: Expanded(
+                                                child: ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                    primary: Colors.red,
+                                                  ),
+                                                  child: const Text('Edit'),
+                                                  onPressed: () { pressedEdit(); },
                                                 ),
-                                                child: const Text('Edit'),
-                                                onPressed: () => Navigator.pop(context),
                                               ),
                                             ),
+                                            Visibility(
+                                              visible: _editMode,
+                                                child: Expanded(
+                                                  child: ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(
+                                                      primary: Colors.red,
+                                                    ),
+                                                    child: const Text('Save'),
+                                                    onPressed: () { pressedSave(); },
+                                                  ),
+                                                ),
+                                            ),
                                             SizedBox(width: 10,),
-                                            Expanded(
+                                            /*Expanded(
                                               child: ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
                                                   primary: Colors.red,
@@ -174,7 +218,7 @@ class _Map extends State<Map>{
                                                 child: const Text('Collapse'),
                                                 onPressed: () => Navigator.pop(context)
                                               ),
-                                            ),
+                                            ),*/
                                           ]
                                       ),
                                     ],
@@ -191,6 +235,9 @@ class _Map extends State<Map>{
                       setState(() {
                         _selectedMarker = "";
                       });
+                    }
+                    if(!_editMode) {
+                      _editMode = false;
                     }
                     readNotes();
                   });

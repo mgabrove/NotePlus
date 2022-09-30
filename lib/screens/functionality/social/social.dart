@@ -56,19 +56,6 @@ class _Social extends State<Social> {
 
   @override
   Widget build(BuildContext context) {
-
-    /*debugPrint("PROBLEM");
-    debugPrint(_groupSelected);
-    if(changed == false) {
-      Map data = {};
-      data = ModalRoute.of(context)!.settings.arguments as Map;
-      _groupSelected = data != null ? data['group'] : null;
-    }
-    Map data = {};
-    data = ModalRoute.of(context)!.settings.arguments as Map;
-    _groupSelected = data != null ? data['group'] : null;
-    changed = true;*/
-
     return MaterialApp(
       home: Scaffold(
           appBar: AppBar(
@@ -146,7 +133,7 @@ class _Social extends State<Social> {
                                       onChanged: (valueSelectedByUser) {
                                         groupChanged(valueSelectedByUser!);
                                         setState(() {
-                                          //_groupSelected = valueSelectedByUser;
+                                          _groupSelected = valueSelectedByUser;
                                         });
                                       },
                                       hint: Text('Choose group'),
@@ -157,10 +144,6 @@ class _Social extends State<Social> {
                                         return DropdownMenuItem<String>(
                                           value: document.get('id'),
                                           child: new Text(document.get('name'), style: TextStyle(fontWeight: _groupSelected == document.get('id') ? FontWeight.bold : FontWeight.normal),),
-                                        );
-                                        return DropdownMenuItem<String>(
-                                          value: document.get('id'),
-                                          child: new Text(document.get('name')),
                                         );
                                       }).toList(),
                                       value: _groupSelected,
@@ -191,7 +174,29 @@ class _Social extends State<Social> {
                                   child: ListView(
                                     scrollDirection: Axis.vertical,
                                     shrinkWrap: true,
-                                    children: documents.get('users').map<Row>((doc) {
+                                    children: <String>[""].map<Row>((item) {
+                                      return Row(
+                                        children: <Widget>[
+                                          Expanded(
+                                            flex: 6, // 20%
+                                            child: Column(
+                                              children: <Widget>[
+                                                Align(
+                                                    alignment: Alignment
+                                                        .centerLeft,
+                                                    child: Padding(
+                                                      padding: EdgeInsets
+                                                          .fromLTRB(10, 15, 15, 1),
+                                                      child: Text("Admins", style: TextStyle(fontWeight: FontWeight.bold),),
+                                                    )
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }).toList() +
+                                    documents.get('admins').map<Row>((doc) {
                                 return Row(
                                     children: <Widget>[
                                       Expanded(
@@ -203,8 +208,7 @@ class _Social extends State<Social> {
                                                     .centerLeft,
                                                 child: Padding(
                                                   padding: EdgeInsets
-                                                      .fromLTRB(10, 15, 15,
-                                                      1),
+                                                      .fromLTRB(10, 15, 15, 1),
                                                   child: Text(
                                                     doc
                                                   ),
@@ -217,51 +221,198 @@ class _Social extends State<Social> {
                                         flex: 4, // 60%
                                         child: Row(
                                           children: <Widget>[
-                                            OutlinedButton(
-                                              child: Icon(CupertinoIcons.chevron_compact_up),
-                                              onPressed: () async {
-                                                var pressedButton = await showDialog<
-                                                    bool>(
-                                                    context: context,
-                                                    builder: (
-                                                        BuildContext context) {
-                                                      return CustomDialog(
-                                                          "Are you sure\nyou want to promote this user?",
-                                                          "Yes", "No");
-                                                    }
-                                                );
-                                                if (pressedButton ==
-                                                    true) pressedPromoteAdmin(
-                                                    documents);
-                                              },
-                                            ),
-                                            Visibility(
-                                              child: OutlinedButton(
-                                                child: Icon(Icons.remove,
-                                                  color: Colors.red,),
-                                                onPressed: () async {
-                                                  var pressedButton = await showDialog<
-                                                      bool>(
-                                                      context: context,
-                                                      builder: (
-                                                          BuildContext context) {
-                                                        return CustomDialog(
-                                                            "Are you sure\nyou want to delete this note?",
-                                                            "Yes", "No");
-                                                      }
-                                                  );
-                                                  if (pressedButton ==
-                                                      true) pressedRemoveMember(
-                                                      documents);
-                                                },
-                                              ),
-                                            ),
+
                                           ],
                                         ),
                                       ),
                                     ]
                                 );
-                              }).toList()
+                              }).toList() +
+                                        <String>[""].map<Row>((item) {
+                                          return Row(
+                                            children: <Widget>[
+                                              Expanded(
+                                                flex: 6, // 20%
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Padding(
+                                                          padding: EdgeInsets
+                                                              .fromLTRB(10, 15, 15, 1),
+                                                          child: Text("Users", style: TextStyle(fontWeight: FontWeight.bold),),
+                                                        )
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        }).toList() +
+                                        List.from((Set.from(documents.get('users')).difference(Set.from(documents.get('admins')))).difference(Set.from(documents.get('pending')))).map<Row>((doc) {
+                                          return Row(
+                                              children: <Widget>[
+                                                Expanded(
+                                                  flex: 6, // 20%
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      Align(
+                                                          alignment: Alignment
+                                                              .centerLeft,
+                                                          child: Padding(
+                                                            padding: EdgeInsets
+                                                                .fromLTRB(10, 15, 15, 1),
+                                                            child: Text(
+                                                                doc
+                                                            ),
+                                                          )
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 4, // 60%
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      OutlinedButton(
+                                                        child: Icon(CupertinoIcons.chevron_compact_up),
+                                                        onPressed: () async {
+                                                          var pressedButton = await showDialog<
+                                                              bool>(
+                                                              context: context,
+                                                              builder: (
+                                                                  BuildContext context) {
+                                                                return CustomDialog(
+                                                                    "Are you sure\nyou want to promote this user?",
+                                                                    "Yes", "No");
+                                                              }
+                                                          );
+                                                          if (pressedButton ==
+                                                              true) pressedPromoteAdmin(
+                                                              documents);
+                                                        },
+                                                      ),
+                                                      Visibility(
+                                                        child: OutlinedButton(
+                                                          child: Icon(Icons.remove,
+                                                            color: Colors.red,),
+                                                          onPressed: () async {
+                                                            var pressedButton = await showDialog<
+                                                                bool>(
+                                                                context: context,
+                                                                builder: (
+                                                                    BuildContext context) {
+                                                                  return CustomDialog(
+                                                                      "Are you sure\nyou want to delete this note?",
+                                                                      "Yes", "No");
+                                                                }
+                                                            );
+                                                            if (pressedButton ==
+                                                                true) pressedRemoveMember(
+                                                                documents);
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ]
+                                          );
+                                        }).toList()+
+                                        <String>[""].map<Row>((item) {
+                                          return Row(
+                                            children: <Widget>[
+                                              Expanded(
+                                                flex: 6, // 20%
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Padding(
+                                                          padding: EdgeInsets
+                                                              .fromLTRB(10, 15, 15, 1),
+                                                          child: Text("Pending", style: TextStyle(fontWeight: FontWeight.bold),),
+                                                        )
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        }).toList() +
+                                        (documents.get('pending').map<Row>((doc) {
+                                          return Row(
+                                              children: <Widget>[
+                                                Expanded(
+                                                  flex: 6, // 20%
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      Align(
+                                                          alignment: Alignment
+                                                              .centerLeft,
+                                                          child: Padding(
+                                                            padding: EdgeInsets
+                                                                .fromLTRB(10, 15, 15, 1),
+                                                            child: Text(
+                                                                doc
+                                                            ),
+                                                          )
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 4, // 60%
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      OutlinedButton(
+                                                        child: Icon(CupertinoIcons.plus),
+                                                        onPressed: () async {
+                                                          var pressedButton = await showDialog<
+                                                              bool>(
+                                                              context: context,
+                                                              builder: (
+                                                                  BuildContext context) {
+                                                                return CustomDialog(
+                                                                    "Are you sure\nyou want to promote this user?",
+                                                                    "Yes", "No");
+                                                              }
+                                                          );
+                                                          if (pressedButton ==
+                                                              true) pressedPromoteAdmin(
+                                                              documents);
+                                                        },
+                                                      ),
+                                                      Visibility(
+                                                        child: OutlinedButton(
+                                                          child: Icon(Icons.remove,
+                                                            color: Colors.red,),
+                                                          onPressed: () async {
+                                                            var pressedButton = await showDialog<
+                                                                bool>(
+                                                                context: context,
+                                                                builder: (
+                                                                    BuildContext context) {
+                                                                  return CustomDialog(
+                                                                      "Are you sure\nyou want to delete this note?",
+                                                                      "Yes", "No");
+                                                                }
+                                                            );
+                                                            if (pressedButton ==
+                                                                true) pressedRemoveMember(
+                                                                documents);
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ]
+                                          );
+                                        }).toList()
+                                        )
                               ));
                             }).toList()
                           );
