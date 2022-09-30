@@ -39,10 +39,29 @@ class _Social extends State<Social> {
     final docNew = FirebaseFirestore.instance.collection('groups').doc(_groupSelected).update({'users': FieldValue.arrayUnion([pressedValue])});
   }
   pressedRemoveMember(documents){
-
+    var ref = FirebaseFirestore.instance.collection('groups').doc(_groupSelected);
+    ref.update({
+      'users': FieldValue.arrayRemove([documents]),
+    });
   }
   pressedPromoteAdmin(documents){
-
+    var ref = FirebaseFirestore.instance.collection('groups').doc(_groupSelected);
+    ref.update({
+      'admins': FieldValue.arrayUnion([documents]),
+    });
+  }
+  pressedAcceptUser(documents){
+    var ref = FirebaseFirestore.instance.collection('groups').doc(_groupSelected);
+    ref.update({
+      'pending': FieldValue.arrayRemove([documents]),
+    });
+  }
+  pressedRejectUser(documents){
+    var ref = FirebaseFirestore.instance.collection('groups').doc(_groupSelected);
+    ref.update({
+      'users': FieldValue.arrayRemove([documents]),
+      'pending': FieldValue.arrayRemove([documents]),
+    });
   }
 
   String? _groupSelected;
@@ -275,25 +294,29 @@ class _Social extends State<Social> {
                                                   flex: 4, // 60%
                                                   child: Row(
                                                     children: <Widget>[
-                                                      OutlinedButton(
-                                                        child: Icon(CupertinoIcons.chevron_compact_up),
-                                                        onPressed: () async {
-                                                          var pressedButton = await showDialog<
-                                                              bool>(
-                                                              context: context,
-                                                              builder: (
-                                                                  BuildContext context) {
-                                                                return CustomDialog(
-                                                                    "Are you sure\nyou want to promote this user?",
-                                                                    "Yes", "No");
-                                                              }
-                                                          );
-                                                          if (pressedButton ==
-                                                              true) pressedPromoteAdmin(
-                                                              documents);
-                                                        },
+                                                      Visibility(
+                                                        visible: documents.get('admins').contains(FirebaseAuth.instance.currentUser?.uid) ? true : false,
+                                                          child: OutlinedButton(
+                                                            child: Icon(CupertinoIcons.chevron_compact_up),
+                                                            onPressed: () async {
+                                                              var pressedButton = await showDialog<
+                                                                  bool>(
+                                                                  context: context,
+                                                                  builder: (
+                                                                      BuildContext context) {
+                                                                    return CustomDialog(
+                                                                        "Are you sure\nyou want to promote this user?",
+                                                                        "Yes", "No");
+                                                                  }
+                                                              );
+                                                              if (pressedButton ==
+                                                                  true) pressedPromoteAdmin(
+                                                                  doc);
+                                                            },
+                                                          ),
                                                       ),
                                                       Visibility(
+                                                        visible: documents.get('admins').contains(FirebaseAuth.instance.currentUser?.uid) ? true : false,
                                                         child: OutlinedButton(
                                                           child: Icon(Icons.remove,
                                                             color: Colors.red,),
@@ -304,13 +327,13 @@ class _Social extends State<Social> {
                                                                 builder: (
                                                                     BuildContext context) {
                                                                   return CustomDialog(
-                                                                      "Are you sure\nyou want to delete this note?",
+                                                                      "Are you sure\nyou want to kick this user?",
                                                                       "Yes", "No");
                                                                 }
                                                             );
                                                             if (pressedButton ==
                                                                 true) pressedRemoveMember(
-                                                                documents);
+                                                                doc);
                                                           },
                                                         ),
                                                       ),
@@ -367,25 +390,29 @@ class _Social extends State<Social> {
                                                   flex: 4, // 60%
                                                   child: Row(
                                                     children: <Widget>[
-                                                      OutlinedButton(
-                                                        child: Icon(CupertinoIcons.plus),
-                                                        onPressed: () async {
-                                                          var pressedButton = await showDialog<
-                                                              bool>(
-                                                              context: context,
-                                                              builder: (
-                                                                  BuildContext context) {
-                                                                return CustomDialog(
-                                                                    "Are you sure\nyou want to promote this user?",
-                                                                    "Yes", "No");
-                                                              }
-                                                          );
-                                                          if (pressedButton ==
-                                                              true) pressedPromoteAdmin(
-                                                              documents);
-                                                        },
+                                                      Visibility(
+                                                        visible: documents.get('admins').contains(FirebaseAuth.instance.currentUser?.uid) ? true : false,
+                                                          child: OutlinedButton(
+                                                            child: Icon(CupertinoIcons.plus),
+                                                            onPressed: () async {
+                                                              var pressedButton = await showDialog<
+                                                                  bool>(
+                                                                  context: context,
+                                                                  builder: (
+                                                                      BuildContext context) {
+                                                                    return CustomDialog(
+                                                                        "Are you sure\nyou want to accept this person?",
+                                                                        "Yes", "No");
+                                                                  }
+                                                              );
+                                                              if (pressedButton ==
+                                                                  true) pressedAcceptUser(
+                                                                  doc);
+                                                            },
+                                                          ),
                                                       ),
                                                       Visibility(
+                                                        visible: documents.get('admins').contains(FirebaseAuth.instance.currentUser?.uid) ? true : false,
                                                         child: OutlinedButton(
                                                           child: Icon(Icons.remove,
                                                             color: Colors.red,),
@@ -396,13 +423,13 @@ class _Social extends State<Social> {
                                                                 builder: (
                                                                     BuildContext context) {
                                                                   return CustomDialog(
-                                                                      "Are you sure\nyou want to delete this note?",
+                                                                      "Are you sure\nyou want to reject this person?",
                                                                       "Yes", "No");
                                                                 }
                                                             );
                                                             if (pressedButton ==
-                                                                true) pressedRemoveMember(
-                                                                documents);
+                                                                true) pressedRejectUser(
+                                                                doc);
                                                           },
                                                         ),
                                                       ),
