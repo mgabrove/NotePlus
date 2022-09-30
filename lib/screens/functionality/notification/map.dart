@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -141,7 +142,7 @@ class _Map extends State<Map>{
                                     children: <Widget>[
                                       Text(document["title"], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
                                       Text("lat: " + document["lat"].toString() + ", long: " + document["long"].toString(), style: TextStyle(fontSize: 10),),
-                                      OutlinedButton(onPressed: moveMarker, child: Text("Move note", style: TextStyle(color: Colors.black),)),
+                                      OutlinedButton(onPressed: () { Navigator.pop(context); moveMarker(); }, child: Text("Move note", style: TextStyle(color: Colors.black),)),
                                       SizedBox(height: 5),
                                       TextField(
                                         decoration: InputDecoration.collapsed(
@@ -191,12 +192,11 @@ class _Map extends State<Map>{
                         _selectedMarker = "";
                       });
                     }
-                    moveMarker();
+                    readNotes();
                   });
                 },
                 markerId: MarkerId(doc["id"]),
                 position: LatLng(doc["lat"], doc["long"]),
-                //icon: BitmapDescriptor.defaultMarker,
                 draggable: false,
                 zIndex: 1,
               ));
@@ -265,19 +265,38 @@ class _Map extends State<Map>{
                           ),
                         )
                     ),
-                    Align(
-                        alignment: Alignment.topRight,
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
-                          child: FloatingActionButton.extended(
-                            backgroundColor: Color.fromRGBO(238, 51, 48, 1),
-                            heroTag: "btn2",
-                            onPressed: pressedCreate,
-                            label: Text(""),
-                            icon: Icon(Icons.create),
-                          ),
-                        )
+                    Visibility(
+                      visible: !_moveMarker,
+                      child: Align(
+                          alignment: Alignment.topRight,
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                            child: FloatingActionButton.extended(
+                              backgroundColor: Color.fromRGBO(238, 51, 48, 1),
+                              heroTag: "btn2",
+                              onPressed: pressedCreate,
+                              label: Text(""),
+                              icon: Icon(Icons.create),
+                            ),
+                          )
+                      ),
                     ),
+                    Visibility(
+                      visible: _moveMarker,
+                      child: Align(
+                          alignment: Alignment.topRight,
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                            child: FloatingActionButton.extended(
+                              backgroundColor: Color.fromRGBO(0, 47, 167, 1),
+                              heroTag: "btn2",
+                              onPressed: () { setState(() { _moveMarker = false; _selectedMarker = ""; }); readNotes(); },
+                              label: Text(""),
+                              icon: Icon(CupertinoIcons.return_icon),
+                            ),
+                          )
+                      ),
+                    )
                   ],
                 ),
                 Align(
@@ -314,7 +333,7 @@ class _Map extends State<Map>{
                                   }
                                   return DropdownMenuItem<String>(
                                     value: document.get('id'),
-                                    child: new Text(document.get('name')),
+                                    child: new Text(document.get('name'), style: TextStyle(fontWeight: _groupSelected == document.get('id') ? FontWeight.bold : FontWeight.normal),),
                                   );
                                 }).toList(),
                                 value: _groupSelected,

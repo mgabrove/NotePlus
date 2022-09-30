@@ -7,13 +7,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
-class Arguments {
-  final String title_bar;
-  final String text_message;
-
-  Arguments(this.title_bar, this.text_message);
-}
-
 class Create extends StatefulWidget {
   @override
   _Create createState() => _Create();
@@ -29,7 +22,6 @@ class _Create extends State<Create> {
   pressedCreate(){
     final note = controller.text;
     createNote();
-    Navigator.pop(context);
   }
 
   //
@@ -83,13 +75,14 @@ class _Create extends State<Create> {
     await _getUserLocation();
     final json = {
       'id': docUser.id,
-      'title': controllerTitle.value,
-      'note': controller.value,
+      'title': controllerTitle.text,
+      'note': controller.text,
       'long': currentPostion.longitude,
       'lat': currentPostion.latitude,
-      'groupId': _groupSelected != null ? _groupSelected : "personal",
+      'groupId': _groupSelected,
     };
     await docUser.set(json);
+    Navigator.pop(context);
   }
 
   String? _groupSelected;
@@ -99,10 +92,11 @@ class _Create extends State<Create> {
 
   @override
   Widget build(BuildContext context) {
-
-    Map data = {};
-    data = ModalRoute.of(context)!.settings.arguments as Map;
-    _groupSelected = data != null ? data['group'] : null;
+    if(_groupSelected == null) {
+      Map data = {};
+      data = ModalRoute.of(context)!.settings.arguments as Map;
+      _groupSelected = data == null ? null : data['group'];
+    }
 
     return MaterialApp(
       home: Scaffold(
@@ -177,12 +171,12 @@ class _Create extends State<Create> {
                               },
                               hint: Text('Choose group'),
                               items: snapshot.data!.docs.map<DropdownMenuItem<String>>((DocumentSnapshot document) {
-                                if(_groupSelected == null && document.get('name') == "personal") {
-                                    _groupSelected = document.get('id');
+                                if((_groupSelected == null || _groupSelected == "") && document.get('name') == "personal") {
+                                  _groupSelected = document.get('id');
                                 }
                                 return DropdownMenuItem<String>(
                                   value: document.get('id'),
-                                  child: new Text(document.get('name')),
+                                  child: new Text(document.get('name'), style: TextStyle(fontWeight: _groupSelected == document.get('id') ? FontWeight.bold : FontWeight.normal),),
                                 );
                               }).toList(),
                               value: _groupSelected,

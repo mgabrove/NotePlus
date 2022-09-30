@@ -156,7 +156,7 @@ class _Social extends State<Social> {
                                         }
                                         return DropdownMenuItem<String>(
                                           value: document.get('id'),
-                                          child: new Text(document.get('name')),
+                                          child: new Text(document.get('name'), style: TextStyle(fontWeight: _groupSelected == document.get('id') ? FontWeight.bold : FontWeight.normal),),
                                         );
                                         return DropdownMenuItem<String>(
                                           value: document.get('id'),
