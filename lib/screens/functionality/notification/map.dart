@@ -75,16 +75,26 @@ class _Map extends State<Map>{
 
   moveMarker() {
     setState(() {
-      moveMode = true;
+      _moveMarker = true;
     });
     readNotes();
+  }
+  changePosition(LatLng latLng) {
+    if(_moveMarker) {
+      FirebaseFirestore.instance.collection('notes').doc(_selectedMarker).update({'lat': latLng.latitude, 'long': latLng.longitude});
+      setState(() {
+        _selectedMarker = "";
+        _moveMarker = false;
+      });
+      readNotes();
+    }
   }
 
   final controller = TextEditingController();
 
   List<Marker> _markers = <Marker>[];
   String _selectedMarker = '';
-  bool moveMode = false;
+  bool _moveMarker = false;
 
   readNotes() {
     FirebaseFirestore.instance
@@ -161,7 +171,7 @@ class _Map extends State<Map>{
                                                   primary: Colors.red,
                                                 ),
                                                 child: const Text('Collapse'),
-                                                onPressed: () => Navigator.pop(context),
+                                                onPressed: () => Navigator.pop(context)
                                               ),
                                             ),
                                           ]
@@ -175,7 +185,14 @@ class _Map extends State<Map>{
                         )
                       );
                     },
-                  );
+                  ).whenComplete(() {
+                    if(!_moveMarker) {
+                      setState(() {
+                        _selectedMarker = "";
+                      });
+                    }
+                    moveMarker();
+                  });
                 },
                 markerId: MarkerId(doc["id"]),
                 position: LatLng(doc["lat"], doc["long"]),
@@ -229,6 +246,7 @@ class _Map extends State<Map>{
                       target: LatLng(0,0),
                       zoom: 0.0,
                     ),
+                    onTap: (LatLng latLng) => changePosition(latLng),
                     //markers: Set<Marker>.of(markers.values),
                   ),
                 ),
